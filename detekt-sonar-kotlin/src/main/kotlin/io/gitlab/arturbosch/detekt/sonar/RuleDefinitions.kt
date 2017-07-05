@@ -9,6 +9,7 @@ import io.gitlab.arturbosch.detekt.rules.providers.CommentSmellProvider
 import io.gitlab.arturbosch.detekt.rules.providers.ComplexityProvider
 import io.gitlab.arturbosch.detekt.rules.providers.EmptyCodeProvider
 import io.gitlab.arturbosch.detekt.rules.providers.ExceptionsProvider
+import io.gitlab.arturbosch.detekt.rules.providers.PerformanceProvider
 import io.gitlab.arturbosch.detekt.rules.providers.PotentialBugProvider
 import io.gitlab.arturbosch.detekt.rules.providers.StyleGuideProvider
 import org.sonar.api.rule.RuleKey
@@ -24,6 +25,7 @@ private val CODE_SMELL_RULES = CodeSmellProvider().instance(CONFIG).rules
 private val COMMENTS_RULES = CommentSmellProvider().instance(CONFIG).rules
 private val EMPTY_RULES = EmptyCodeProvider().instance(CONFIG).rules
 private val EXCEPTIONS_RULES = ExceptionsProvider().instance(CONFIG).rules
+private val PERFORMANCE_RULES = PerformanceProvider().instance(CONFIG).rules
 private val POTENTIAL_BUGS_RULES = PotentialBugProvider().instance(CONFIG).rules
 private val FORMATTING_RULES = FormattingProvider().instance(CONFIG).rules
 
@@ -33,6 +35,7 @@ val RULE_KEYS = COMPLEXITY_RULES.map { defineRuleKey(it.id) } +
 		COMMENTS_RULES.map { defineRuleKey(it.id) } +
 		EMPTY_RULES.map { defineRuleKey(it.id) } +
 		EXCEPTIONS_RULES.map { defineRuleKey(it.id) } +
+		PERFORMANCE_RULES.map { defineRuleKey(it.id) } +
 		POTENTIAL_BUGS_RULES.map { defineRuleKey(it.id) } +
 		FORMATTING_RULES.map { defineRuleKey(it.id) }
 
@@ -46,6 +49,7 @@ fun RulesDefinition.NewRepository.createRules() = this.apply {
 			CODE_SMELL_RULES.map { defineRule(it) } +
 			COMMENTS_RULES.map { defineRule(it) } +
 			EXCEPTIONS_RULES.map { defineRule(it) } +
+			io.gitlab.arturbosch.detekt.sonar.PERFORMANCE_RULES.map { defineRule(it) } +
 			EMPTY_RULES.map { defineRule(it) } +
 			POTENTIAL_BUGS_RULES.map { defineRule(it) } +
 			FORMATTING_RULES.map { defineRule(it) }
@@ -67,6 +71,7 @@ private val severityMap = mapOf(
 		Severity.Maintainability to SonarSeverity.MAJOR,
 		Severity.Minor to SonarSeverity.MINOR,
 		Severity.Security to SonarSeverity.BLOCKER,
+		Severity.Performance to SonarSeverity.MINOR,
 		Severity.Style to SonarSeverity.INFO,
 		Severity.Warning to SonarSeverity.INFO
 )
