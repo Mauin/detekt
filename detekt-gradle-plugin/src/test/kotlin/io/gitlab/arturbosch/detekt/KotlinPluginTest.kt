@@ -11,9 +11,9 @@ import java.io.File
 /**
  * @author Marvin Ramin
  */
-internal class PluginTest : Spek({
+internal class KotlinPluginTest : Spek({
 
-	describe("The Detekt Gradle plugin") {
+	describe("The Detekt Gradle plugin used in a build.gradle.kts file") {
 
 		it("can be applied") {
 			val rootDir = createTempDir(prefix = "applyPlugin")
@@ -37,11 +37,13 @@ internal class PluginTest : Spek({
 	}
 })
 
-// build.gradle
+// build.gradle.kts
 private val buildFileContent = """
+	|import io.gitlab.arturbosch.detekt.detekt
+	|
 	|plugins {
-	|   id "java-library"
-	|   id "io.gitlab.arturbosch.detekt"
+	|   `java-library`
+	|	id("io.gitlab.arturbosch.detekt")
 	|}
 	|
 	|repositories {
@@ -58,9 +60,6 @@ private val buildFileContent = """
 //	|	toolVersion = "1.0.0.RC6-4"
 //	|}
 
-// settings.gradle
-private const val settingsFileContent = """include ":custom""""
-
 // src/main/kotlin/MyClass.kt
 private val ktFileContent = """
 	|class MyClass
@@ -68,8 +67,7 @@ private val ktFileContent = """
 	""".trimMargin()
 
 private fun writeFiles(root: File) {
-	File(root, "build.gradle").writeText(buildFileContent)
-	File(root, "settings.gradle").writeText(settingsFileContent)
+	File(root, "build.gradle.kts").writeText(buildFileContent)
 	File(root, "src/main/java").mkdirs()
 	File(root, "src/main/java/MyClass.kt").writeText(ktFileContent)
 }

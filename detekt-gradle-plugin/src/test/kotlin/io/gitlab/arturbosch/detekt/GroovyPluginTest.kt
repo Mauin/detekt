@@ -11,9 +11,9 @@ import java.io.File
 /**
  * @author Marvin Ramin
  */
-internal class PluginTest : Spek({
+internal class GroovyPluginTest : Spek({
 
-	describe("The Detekt Gradle plugin") {
+	describe("The Detekt Gradle plugin used in a build.gradle file") {
 
 		it("can be applied") {
 			val rootDir = createTempDir(prefix = "applyPlugin")
@@ -39,6 +39,8 @@ internal class PluginTest : Spek({
 
 // build.gradle
 private val buildFileContent = """
+	|import io.gitlab.arturbosch.detekt.DetektPlugin
+	|
 	|plugins {
 	|   id "java-library"
 	|   id "io.gitlab.arturbosch.detekt"

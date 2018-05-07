@@ -2,12 +2,12 @@ package io.gitlab.arturbosch.detekt
 
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.file.RegularFile
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
 import org.gradle.api.plugins.quality.CodeQualityExtension
 import org.gradle.api.plugins.quality.internal.AbstractCodeQualityPlugin
 import org.gradle.api.tasks.SourceSet
 import java.io.File
+import java.util.concurrent.Callable
 
 /**
  * @author Marvin Ramin
@@ -28,10 +28,12 @@ class DetektPlugin : AbstractCodeQualityPlugin<Detekt>() {
 	override fun createExtension(): CodeQualityExtension {
 		println("CreateExtension")
 		val extension = project.extensions.create(DETEKT, DetektExtension::class.java, project, project.layout)
+		// TODO compile in the version
 		extension.toolVersion = System.getProperty("detektVersion")
-		extension.configDir = RegularFile { project.rootProject.file("detekt-cli/src/main/resources/") }
-		extension.config = project.resources.text.fromFile { File(extension.configDir.asFile, "default-detekt-config.yml") }
-
+		extension.configDir = project.rootProject.layout.projectDirectory.dir("detekt-cli/src/main/resources/")
+		extension.config = project.resources.text.fromFile(Callable {
+			return@Callable File(extension.configDir?.asFile, "default-detekt-config.yml")
+		})
 		generateConfigTask = project.tasks.create(GENERATE_CONFIG, DetektGenerateConfigTask::class.java)
 		createBaselineTask = project.tasks.create(BASELINE, DetektCreateBaselineTask::class.java)
 		ideaFormatTask = project.tasks.create(IDEA_FORMAT, DetektIdeaFormatTask::class.java)

@@ -1,6 +1,5 @@
 import com.jfrog.bintray.gradle.BintrayExtension
 import io.gitlab.arturbosch.detekt.DetektPlugin
-import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import io.gitlab.arturbosch.detekt.extensions.IdeaExtension
 import org.codehaus.groovy.tools.shell.util.Logger.io
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -55,35 +54,35 @@ allprojects {
 }
 
 subprojects {
-
 	apply {
 		plugin("org.junit.platform.gradle.plugin")
 		plugin("java-library")
 		plugin("kotlin")
 		plugin("com.jfrog.bintray")
 		plugin("maven-publish")
-		plugin("io.gitlab.arturbosch.detekt")
+//		plugin("io.gitlab.arturbosch.detekt")
 	}
 
 	val userHome = System.getProperty("user.home")
 	val usedDetektGradleVersion: String by project
 
-	configure<DetektExtension> {
-		debug = true
-		parallel = true
-		baseline = RegularFile { file("${rootProject.projectDir}/reports/baseline.xml") }
-		filters = ".*/resources/.*, .*/build/.*"
-		configFile = file("${rootProject.projectDir}/detekt-cli/src/main/resources/default-detekt-config.yml")
-		toolVersion = usedDetektGradleVersion
-
-		idea(Action {
-			path = "$userHome/.idea"
-			codeStyleScheme = "$userHome/.idea/idea-code-style.xml"
-			inspectionsProfile = "$userHome/.idea/inspect.xml"
-			report = "project.projectDir/reports"
-			mask = "*.kt"
-		})
-	}
+//	detekt {
+//	}
+////		debug = true
+////		parallel = true
+////		baseline = RegularFile { file("${rootProject.projectDir}/reports/baseline.xml") }
+////		filters = ".*/resources/.*, .*/build/.*"
+//		configFile = file("${rootProject.projectDir}/detekt-cli/src/main/resources/default-detekt-config.yml")
+//		toolVersion = usedDetektGradleVersion
+//
+//		idea(Action {
+//			path = "$userHome/.idea"
+//			codeStyleScheme = "$userHome/.idea/idea-code-style.xml"
+//			inspectionsProfile = "$userHome/.idea/inspect.xml"
+//			report = "project.projectDir/reports"
+//			mask = "*.kt"
+//		})
+//	}
 
 	if (this.name in listOf("detekt-cli", "detekt-watch-service", "detekt-generator")) {
 		apply {
@@ -205,7 +204,7 @@ val userHome: String = System.getProperty("user.home")
 
 val usedDetektVersion: String by project
 
-//configure<DetektExtension> {
+//configure<DetektExtension>{
 //
 //	debug = true
 //	version = "$usedDetektVersion"
