@@ -24,6 +24,15 @@ object DetektInvoker {
 		val detektConfigurations = setOf(CONFIGURATION_DETEKT_PLUGINS, CONFIGURATION_DETEKT)
 		val configurations = project.configurations.filter { detektConfigurations.contains(it.name) }
 
+		configurations.forEach {
+			println(it)
+			it.resolve()
+			println("Dependencies:")
+			it.getAllDependencies().forEach { println("  $it") }
+			println("Artifacts:")
+			it.getAllArtifacts().forEach { println("  $it") }
+		}
+
 		val files = project.files(configurations)
 		if (debug) files.forEach { println(it) }
 		return files

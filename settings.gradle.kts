@@ -9,16 +9,16 @@ include("detekt-api",
 		"detekt-watcher",
 		"detekt-formatting")
 
-includeBuild("detekt-gradle-plugin")
+// includeBuild("detekt-gradle-plugin")
 
-pluginManagement {
-	resolutionStrategy {
-		eachPlugin {
-			if (requested.id.id == "io.gitlab.arturbosch.detekt") {
-				useModule("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1") // version ignored for composite build
-			}
-		}
-	}
-}
+// pluginManagement {
+// 	resolutionStrategy {
+// 		eachPlugin {
+// 			if (requested.id.id == "io.gitlab.arturbosch.detekt") {
+// 				useModule("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1") // version ignored for composite build
+// 			}
+// 		}
+// 	}
+// }
 
 enableFeaturePreview("STABLE_PUBLISHING")

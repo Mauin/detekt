@@ -82,13 +82,13 @@ class DetektPlugin : Plugin<Project> {
 	private fun determineInput(extension: DetektExtension) = extension.input.filter { it.exists() }
 
 	private fun configurePluginDependencies(project: Project, extension: DetektExtension) {
-		project.configurations.create(CONFIGURATION_DETEKT_PLUGINS) {
+		val detektConfiguration = project.configurations.create(CONFIGURATION_DETEKT_PLUGINS) {
 			isVisible = false
 			isTransitive = true
 			description = "The $CONFIGURATION_DETEKT_PLUGINS libraries to be used for this project."
 		}
 
-		project.configurations.create(CONFIGURATION_DETEKT) {
+		val detektPluginConfiguration = project.configurations.create(CONFIGURATION_DETEKT) {
 			isVisible = false
 			isTransitive = true
 			description = "The $CONFIGURATION_DETEKT dependencies to be used for this project."
@@ -98,6 +98,14 @@ class DetektPlugin : Plugin<Project> {
 			defaultDependencies {
 				add(project.dependencies.create("io.gitlab.arturbosch.detekt:detekt-cli:$version"))
 			}
+		}
+		val implementationConfiguration = project.configurations.getAt("implementation")
+		detektConfiguration.extendsFrom(implementationConfiguration)
+		detektPluginConfiguration.extendsFrom(implementationConfiguration)
+
+		project.sourceSets.forEach {
+			val classpath = it.compileClasspath
+			it.setCompileClasspath(classpath + detektConfiguration + detektPluginConfiguration)
 		}
 	}
 

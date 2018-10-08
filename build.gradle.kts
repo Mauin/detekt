@@ -13,30 +13,30 @@ plugins {
 	id("com.github.ben-manes.versions") version "0.20.0"
 	id("com.github.johnrengelman.shadow") version "4.0.1" apply false
 	id("org.sonarqube") version "2.6.2"
-	id("io.gitlab.arturbosch.detekt")
+	id("io.gitlab.arturbosch.detekt") version "1.0.0.RC9.2"
 	id("org.jetbrains.dokka") version "0.9.17"
 }
 
-tasks.withType<Wrapper> {
-	gradleVersion = "4.10.2"
-	distributionType = Wrapper.DistributionType.ALL
-	doLast {
-		/*
-		 * Copy the properties file into the detekt-gradle-plugin project.
-		 * This allows IDEs like IntelliJ to import the detekt-gradle-plugin as a standalone project.
-		 */
-		val gradlePluginWrapperDir = File(gradle.includedBuild("detekt-gradle-plugin").projectDir, "/gradle/wrapper")
-		GFileUtils.mkdirs(gradlePluginWrapperDir)
-		copy {
-			from(propertiesFile)
-			into(gradlePluginWrapperDir)
-		}
-	}
-}
+// tasks.withType<Wrapper> {
+// 	gradleVersion = "4.10.2"
+// 	distributionType = Wrapper.DistributionType.ALL
+// 	doLast {
+// 		/*
+// 		 * Copy the properties file into the detekt-gradle-plugin project.
+// 		 * This allows IDEs like IntelliJ to import the detekt-gradle-plugin as a standalone project.
+// 		 */
+// 		val gradlePluginWrapperDir = File(gradle.includedBuild("detekt-gradle-plugin").projectDir, "/gradle/wrapper")
+// 		GFileUtils.mkdirs(gradlePluginWrapperDir)
+// 		copy {
+// 			from(propertiesFile)
+// 			into(gradlePluginWrapperDir)
+// 		}
+// 	}
+// }
 
-tasks.withType<Test> {
-	dependsOn(gradle.includedBuild("detekt-gradle-plugin").task(":test"))
-}
+// tasks.withType<Test> {
+// 	dependsOn(gradle.includedBuild("detekt-gradle-plugin").task(":test"))
+// }
 
 val detektVersion: String by project
 val usedDetektVersion: String by project
