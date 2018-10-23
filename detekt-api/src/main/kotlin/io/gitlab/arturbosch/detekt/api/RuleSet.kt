@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.psi.KtFile
  *
  * @author Artur Bosch
  */
-class RuleSet(val id: String, val rules: List<BaseRule>) {
+class RuleSet(val id: String, private val rules: List<BaseRule>) {
 
 	init {
 		validateIdentifier(id)
@@ -17,7 +17,7 @@ class RuleSet(val id: String, val rules: List<BaseRule>) {
 	 * Visits given file with all rules of this rule set, returning a list
 	 * of all code smell findings.
 	 */
-	fun accept(file: KtFile): List<Finding> = rules.flatMap { it.visitFile(file); it.findings }
+//	fun accept(file: KtFile): List<Finding> = rules.flatMap { it.visitFile(file); it.findings }
 
 	/**
 	 * Visits given file with all non-filtered rules of this rule set.
@@ -26,9 +26,8 @@ class RuleSet(val id: String, val rules: List<BaseRule>) {
 	 *
 	 * A list of findings is returned for given [KtFile]
 	 */
-	fun accept(file: KtFile, ruleFilters: Set<String>): List<Finding> =
+	fun rules(ruleFilters: Set<String> = setOf()): List<BaseRule> =
 			rules.asSequence()
 					.filterNot { it.ruleId in ruleFilters }
 					.onEach { if (it is MultiRule) it.ruleFilters = ruleFilters }.toList()
-					.flatMap { it.visitFile(file); it.findings }
 }

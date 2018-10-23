@@ -1,5 +1,6 @@
 package io.gitlab.arturbosch.detekt.core
 
+import io.gitlab.arturbosch.detekt.api.BaseRule
 import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.api.FileProcessListener
 import io.gitlab.arturbosch.detekt.api.Finding
@@ -12,11 +13,10 @@ import java.util.concurrent.ExecutorService
  * @author Artur Bosch
  */
 class Detektor(settings: ProcessingSettings,
-			   private val providers: List<RuleSetProvider>,
+			   providers: List<RuleSetProvider>,
 			   private val processors: List<FileProcessListener> = emptyList()) {
 
-	private val config: Config = settings.config
-	private val testPattern: TestPattern = settings.loadTestPattern()
+	private val ruleManager: RuleManager = RuleManager(providers, settings.config, settings.loadTestPattern())
 	private val executor: ExecutorService = settings.executorService
 	private val logger = settings.errorPrinter
 
@@ -46,17 +46,52 @@ class Detektor(settings: ProcessingSettings,
 	}
 
 	private fun KtFile.analyze(): Map<String, List<Finding>> {
-		var ruleSets = providers.asSequence()
-				.mapNotNull { it.buildRuleset(config) }
-				.sortedBy { it.id }
-				.distinctBy { it.id }
-				.toList()
-
-		return if (testPattern.isTestSource(this)) {
-			ruleSets = ruleSets.filterNot { testPattern.matchesRuleSet(it.id) }
-			ruleSets.map { ruleSet -> ruleSet.id to ruleSet.accept(this, testPattern.excludingRules) }
-		} else {
-			ruleSets.map { ruleSet -> ruleSet.id to ruleSet.accept(this) }
+		return ruleManager.getApplicableRules(this).map {
+			it.visit(this)
+			val ruleSetId = ruleManager.ruleSetForRuleId(it.ruleId)
+			ruleSetId to it.findings
 		}.toMergedMap()
+	}
+}
+
+class RuleManager(providers: List<RuleSetProvider>,
+				  private val config: Config,
+				  private val testPattern: TestPattern) {
+
+	private val ruleSets = providers.asSequence()
+			.mapNotNull { it.buildRuleset(config) }
+			.sortedBy { it.id }
+			.distinctBy { it.id }
+			.toList()
+
+	private val rules = ruleSets.flatMap { ruleSet ->
+		val ruleSetConfig = config.subConfig(ruleSet.id)
+		val rules = ruleSet.rules().filter { rule -> ruleSetConfig.subConfig(rule.ruleId).valueOrDefault("active", false) }
+		rules
+	}
+	private val testPatternRules = ruleSets
+			.filterNot { testPattern.matchesRuleSet(it.id) }
+			.flatMap { ruleSet ->
+				val ruleSetConfig = config.subConfig(ruleSet.id)
+				val rules = ruleSet.rules(testPattern.excludingRules).filter { rule -> ruleSetConfig.subConfig(rule.ruleId).valueOrDefault("active", false) }
+				rules
+			}
+	private val ruleSetLookup: Map<String, String>
+
+	init {
+		val lookup = mutableMapOf<String, String>()
+		ruleSets.forEach { ruleSet ->
+			lookup += ruleSet.rules().associate { rule -> rule.ruleId to ruleSet.id }
+		}
+		ruleSetLookup = lookup
+	}
+
+	fun ruleSetForRuleId(id: String): String {
+		return ruleSetLookup[id]
+				?: throw IllegalArgumentException("No Rule $id found in defined rules.")
+	}
+
+	fun getApplicableRules(file: KtFile): List<BaseRule> {
+		return if (testPattern.isTestSource(file)) testPatternRules else rules
 	}
 }

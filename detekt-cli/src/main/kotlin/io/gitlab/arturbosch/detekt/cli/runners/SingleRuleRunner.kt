@@ -34,7 +34,7 @@ class SingleRuleRunner(private val arguments: CliArgs) : Executable {
 		val ruleToRun = RuleSetLocator(settings).load()
 				.find { it.ruleSetId == ruleSet }
 				?.buildRuleset(Config.empty)
-				?.rules
+				?.rules()
 				?.find { it.ruleId == rule }
 				?: throw IllegalArgumentException("There was no rule '$rule' in rule set '$ruleSet'.")
 
